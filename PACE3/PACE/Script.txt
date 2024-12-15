@@ -1,0 +1,65 @@
+-- Crea la base de dades si no existeix
+CREATE DATABASE IF NOT EXISTS PadelDB;
+
+-- Selecciona la base de dades
+USE PadelDB;
+
+-- Desactivem les restriccions de claus foranes temporalment
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Eliminem les taules si existeixen per a evitar errors
+DROP TABLE IF EXISTS Torneig_Equip;
+DROP TABLE IF EXISTS Punts_Ranking;
+DROP TABLE IF EXISTS Jugadors;
+DROP TABLE IF EXISTS Equips;
+DROP TABLE IF EXISTS Ranking;
+DROP TABLE IF EXISTS Torneig;
+
+-- Creem la taula Jugadors
+CREATE TABLE Jugadors (
+    idJugador BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(255),
+    nacionalitat VARCHAR(255),
+    punts INT,
+    company BIGINT DEFAULT NULL,
+    idEquip INT DEFAULT NULL,
+    FOREIGN KEY (company) REFERENCES Jugadors(idJugador) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (idEquip) REFERENCES Equips(idEquip) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- Creem la taula Equips
+CREATE TABLE Equips (
+    idEquip INT AUTO_INCREMENT PRIMARY KEY,
+    jugador1_id BIGINT DEFAULT NULL,
+    jugador2_id BIGINT DEFAULT NULL,
+    FOREIGN KEY (jugador1_id) REFERENCES Jugadors(idJugador) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (jugador2_id) REFERENCES Jugadors(idJugador) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- Creem la taula Torneig
+CREATE TABLE Torneig (
+    idTorneig INT AUTO_INCREMENT PRIMARY KEY,
+    pais VARCHAR(255),
+    categoria VARCHAR(255)
+);
+
+-- Creem la taula Punts_Ranking
+CREATE TABLE Punts_Ranking (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    categoria VARCHAR(255),
+    punts INT,
+    torneig_id INT DEFAULT NULL,
+    FOREIGN KEY (torneig_id) REFERENCES Torneig(idTorneig) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- Creem la taula Torneig_Equip per a la relació molts a molts
+CREATE TABLE Torneig_Equip (
+    idEquip INT NOT NULL,
+    idTorneig INT NOT NULL,
+    PRIMARY KEY (idEquip, idTorneig),
+    FOREIGN KEY (idEquip) REFERENCES Equips(idEquip) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (idTorneig) REFERENCES Torneig(idTorneig) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- Reactivem les restriccions de claus foranes
+SET FOREIGN_KEY_CHECKS = 1;
